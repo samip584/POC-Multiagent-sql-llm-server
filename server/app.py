@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from config.db import Base, engine
+from app.User.router import user_router
 
 app = FastAPI()
 
@@ -13,5 +14,7 @@ async def root():
 @app.get("/health")
 async def health_check():
     return {"status": "healthy"}
+
+app.include_router(user_router)
 
 __all__ = ["app"]
