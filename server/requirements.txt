@@ -6,4 +6,7 @@ python-dotenv==1.0.1
 alembic==1.13.1
 pydantic==2.7.1
 pydantic-settings==2.2.1
+langchain==0.1.19
+langchain-openai==0.1.6
+openai==1.27.0
 
