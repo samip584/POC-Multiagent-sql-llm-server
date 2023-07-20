@@ -1,28 +1,36 @@
-from typing import Dict
-from langchain_openai import ChatOpenAI
-from langchain_community.utilities import SQLDatabase
-from config.config import settings
+from typing import List, Dict
+from .graph import GraphService
+from .media_utils import format_response_with_images
 
 class ChatBotService:
   """Service class for handling chatbot operations."""
 
   def __init__(self):
-    """Initialize the ChatBotService."""
-    self.model = ChatOpenAI(model="gpt-4o", api_key=settings.OPENAI_API_KEY, temperature=0.3)
-    self.db = SQLDatabase.from_uri(settings.get_database_uri())
+    """Initialize the ChatBotService with GraphService."""
+    self.graphService = GraphService()
 
-  async def ask_question(self, question: str, user_id: int) -> dict:
-    """Process a user question and return the response.
+  async def ask_question(self, question: str, user_id: int, include_image_metadata: bool = True, chat_history: List[Dict[str, str]] = None) -> dict:
+    """Process a user question using the graph service and return the response.
     
     Args:
       question: User's question
       user_id: User identifier
+      include_image_metadata: If True, returns structured response with separate image URLs
+      chat_history: Previous conversation messages for context
       
     Returns:
-      Response dict with text
+      Response dict with text and optionally image metadata
     """
-    # Simple response for now
-    response = f"Received question: {question} from user {user_id}"
-    return {"response": response}
+    if chat_history is None:
+      chat_history = []
+    
+    output = await self.graphService.invoke(question, user_id, chat_history)
+    
+    if include_image_metadata:
+      # Return structured response with separate image array for frontend
+      return format_response_with_images(output, convert_urls=True)
+    else:
+      # Return simple text response (backward compatible)
+      return {"response": output}
 
 
