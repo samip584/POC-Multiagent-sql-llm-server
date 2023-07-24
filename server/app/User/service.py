@@ -13,6 +13,9 @@ class UserService:
                 "id": user.id,
                 "name": user.name,
                 "email": user.email,
+                "phone": user.phone,
+                "longitude": user.longitude,
+                "latitude": user.latitude,
             }
             for user in users
         ]
@@ -25,5 +28,8 @@ class UserService:
                 "id": user.id,
                 "name": user.name,
                 "email": user.email,
+                "phone": user.phone,
+                "longitude": user.longitude,
+                "latitude": user.latitude,
             }
         return None
