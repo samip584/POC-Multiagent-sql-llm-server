@@ -24,13 +24,24 @@ class ChatBotService:
     if chat_history is None:
       chat_history = []
     
+    # Add response time tracking
+    import time
+    start_time = time.time()
+    
     output = await self.graphService.invoke(question, user_id, chat_history)
+    
+    response_time = time.time() - start_time
     
     if include_image_metadata:
       # Return structured response with separate image array for frontend
-      return format_response_with_images(output, convert_urls=True)
+      result = format_response_with_images(output, convert_urls=True)
+      result['response_time_ms'] = round(response_time * 1000, 2)
+      return result
     else:
       # Return simple text response (backward compatible)
-      return {"response": output}
+      return {
+        "response": output,
+        "response_time_ms": round(response_time * 1000, 2)
+      }
 
 

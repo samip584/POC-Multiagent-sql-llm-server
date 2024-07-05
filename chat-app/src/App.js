@@ -60,6 +60,7 @@ const App = () => {
         content: data.text || data.response, // Support both old and new format
         images: data.images || [],
         hasImages: data.has_images || false,
+        responseTime: data.response_time_ms || null,
       });
     } catch (error) {
       console.error("There was an error!", error);
@@ -198,6 +199,11 @@ const ChatArea = ({ messages, isSending }) => {
             ) : (
               <>
                 {renderContent(message.content)}
+                {message.responseTime && (
+                  <div className="response-time">
+                    ⏱️ {message.responseTime}ms
+                  </div>
+                )}
                 {message.hasImages &&
                   message.images &&
                   message.images.length > 0 && (

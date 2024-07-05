@@ -222,6 +222,13 @@
   word-wrap: break-word;
 }
 
+.response-time {
+  font-size: 11px;
+  color: #888;
+  margin-top: 8px;
+  font-style: italic;
+}
+
 /* Image gallery styles */
 .image-gallery {
   display: grid;
