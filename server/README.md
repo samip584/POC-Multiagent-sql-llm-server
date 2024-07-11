@@ -1,6 +1,6 @@
 # Multi-Agent SQL LLM Server
 
-A sophisticated multi-agent chatbot system powered by LangGraph and OpenAI GPT-4o that intelligently routes queries to specialized agents (SQL, Recommender, Assistant) for optimal response generation. The system includes intelligent image handling via MinIO S3 storage and maintains conversation context throughout the user session.
+A sophisticated multi-agent chatbot system powered by LangGraph and OpenAI GPT-4o that intelligently routes queries to specialized agents (SQL, Recommender, Assistant) for optimal response generation. The system includes intelligent image handling via MinIO S3 storage, maintains conversation context throughout the user session, and provides real-time performance metrics.
 
 ## 🏗️ Architecture Overview
 
