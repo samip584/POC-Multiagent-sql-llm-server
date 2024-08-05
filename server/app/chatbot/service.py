@@ -1,6 +1,9 @@
 from typing import List, Dict
+import logging
 from .graph import GraphService
 from .media_utils import format_response_with_images
+
+logger = logging.getLogger(__name__)
 
 class ChatBotService:
   """Service class for handling chatbot operations."""
@@ -8,6 +11,7 @@ class ChatBotService:
   def __init__(self):
     """Initialize the ChatBotService with GraphService."""
     self.graphService = GraphService()
+    logger.info("ChatBotService initialized successfully")
 
   async def ask_question(self, question: str, user_id: int, include_image_metadata: bool = True, chat_history: List[Dict[str, str]] = None) -> dict:
     """Process a user question using the graph service and return the response.
@@ -24,24 +28,31 @@ class ChatBotService:
     if chat_history is None:
       chat_history = []
     
+    logger.info(f"Processing question for user {user_id}: {question[:50]}...")
+    
     # Add response time tracking
     import time
     start_time = time.time()
     
-    output = await self.graphService.invoke(question, user_id, chat_history)
-    
-    response_time = time.time() - start_time
-    
-    if include_image_metadata:
-      # Return structured response with separate image array for frontend
-      result = format_response_with_images(output, convert_urls=True)
-      result['response_time_ms'] = round(response_time * 1000, 2)
-      return result
-    else:
-      # Return simple text response (backward compatible)
-      return {
-        "response": output,
-        "response_time_ms": round(response_time * 1000, 2)
-      }
+    try:
+      output = await self.graphService.invoke(question, user_id, chat_history)
+      
+      response_time = time.time() - start_time
+      logger.info(f"Question processed in {response_time:.2f}s for user {user_id}")
+      
+      if include_image_metadata:
+        # Return structured response with separate image array for frontend
+        result = format_response_with_images(output, convert_urls=True)
+        result['response_time_ms'] = round(response_time * 1000, 2)
+        return result
+      else:
+        # Return simple text response (backward compatible)
+        return {
+          "response": output,
+          "response_time_ms": round(response_time * 1000, 2)
+        }
+    except Exception as e:
+      logger.error(f"Error processing question for user {user_id}: {str(e)}")
+      raise
 
 
