@@ -40,10 +40,12 @@
 .app-container {
   height: 100vh;
   display: flex;
-  background-color: #121212;
+  background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 100%);
   color: white;
   justify-content: center;
-  font-family: "Arial", sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 .app-wrapper {
@@ -59,6 +61,19 @@
   align-items: center;
   justify-content: center;
   flex: 0 0 20%;
+  background: rgba(255, 255, 255, 0.02);
+  border-bottom: 1px solid rgba(97, 218, 251, 0.1);
+  backdrop-filter: blur(10px);
+}
+
+.header h1 {
+  background: linear-gradient(135deg, #61dafb 0%, #00d4ff 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-size: 2.5em;
+  margin: 0;
+  font-weight: 700;
 }
 
 .examples-toggle {
@@ -188,14 +203,24 @@
 .input-area button {
   padding: 10px 20px;
   border: none;
-  background-color: #61dafb;
+  background: linear-gradient(135deg, #61dafb 0%, #00d4ff 100%);
   border-radius: 5px;
   cursor: pointer;
-  transition: background-color 0.3s ease;
+  transition: all 0.3s ease;
+  font-weight: 600;
+  color: #0a0a0a;
+  box-shadow: 0 4px 15px rgba(97, 218, 251, 0.3);
 }
 
 .input-area button:hover {
-  background-color: #35baf6;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(97, 218, 251, 0.5);
+}
+
+.input-area button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
 }
 
 .message {
