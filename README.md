@@ -1,5 +1,11 @@
 # Multi-Agent SQL LLM System
 
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.111.0-green.svg)](https://fastapi.tiangolo.com/)
+[![React](https://img.shields.io/badge/React-18.2.0-blue.svg)](https://reactjs.org/)
+[![LangGraph](https://img.shields.io/badge/LangGraph-0.0.48-orange.svg)](https://github.com/langchain-ai/langgraph)
+[![Python](https://img.shields.io/badge/Python-3.11+-blue.svg)](https://www.python.org/)
+[![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
 A full-stack intelligent chatbot application powered by LangGraph multi-agent orchestration, OpenAI GPT-4o, and React. The system features automatic query routing, conversational AI with image support, and real-time chat interface.
 
 ## 🎯 Overview
