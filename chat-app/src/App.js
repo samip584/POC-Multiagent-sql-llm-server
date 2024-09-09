@@ -40,6 +40,9 @@ const App = () => {
     }));
 
     try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 60000); // 60 second timeout
+
       const response = await fetch("http://localhost:8000/chat-bot/ask", {
         method: "POST",
         headers: {
@@ -51,7 +54,15 @@ const App = () => {
           include_images: true, // Request image metadata
           chat_history: chatHistory, // Send conversation history
         }),
+        signal: controller.signal,
       });
+
+      clearTimeout(timeoutId);
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
       const data = await response.json();
 
       // Handle new response format with images
@@ -64,9 +75,17 @@ const App = () => {
       });
     } catch (error) {
       console.error("There was an error!", error);
+      
+      let errorMessage = "Sorry, there was an issue getting a response.";
+      if (error.name === 'AbortError') {
+        errorMessage = "Request timed out. Please try again with a shorter question.";
+      } else if (error.message.includes('Failed to fetch')) {
+        errorMessage = "Cannot connect to server. Please check if the backend is running.";
+      }
+      
       addMessage({
         author: "bot",
-        content: "Sorry, there was an issue getting a response.",
+        content: errorMessage,
         images: [],
         hasImages: false,
       });
