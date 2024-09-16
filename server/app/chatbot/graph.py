@@ -126,6 +126,7 @@ class GraphService:
 
     # Use temperature for more consistent responses
     self.model = ChatOpenAI(model="gpt-4o", api_key=settings.OPENAI_API_KEY, temperature=0.3)
+    self.fast_model = ChatOpenAI(model="gpt-4o-mini", api_key=settings.OPENAI_API_KEY, temperature=0.2)
     
     # Max iterations to prevent infinite loops
     self.max_iterations = 5
@@ -196,7 +197,8 @@ Remember: Be conversational, friendly, and helpful - not robotic!"""
       Respond with ONLY the category name (SQL, RECOMMENDER, or ASSISTANT)."""
     )
     
-    return classifier_prompt | self.model
+    # Use faster, cheaper model for classification
+    return classifier_prompt | self.fast_model
   
   def _classify_query(self, query: str) -> str:
     """Quickly classify query to route directly to the right agent."""
