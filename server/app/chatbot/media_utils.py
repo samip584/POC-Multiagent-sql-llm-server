@@ -32,7 +32,7 @@ def extract_image_urls_from_text(text: str) -> list[str]:
         List of extracted URLs
     """
     import re
-    pattern = r'https?://[^\s<>"]+(?:\.jpg|\.jpeg|\.png|\.gif|\.webp|\.svg)?'
+    pattern = r'https?://[^\s<>"()]+(?:\.jpg|\.jpeg|\.png|\.gif|\.webp|\.svg)'
     return re.findall(pattern, text, re.IGNORECASE)
 
 
@@ -53,25 +53,33 @@ def format_response_with_images(response_text: str, convert_urls: bool = True) -
     markdown_images = re.findall(r'!\[([^\]]*)\]\(([^)]+)\)', response_text)
     
     images = []
+    seen_urls = set()
+    
     for alt_text, url in markdown_images:
         if convert_urls:
             url = convert_minio_url_for_frontend(url)
-        images.append({
-            'url': url,
-            'alt': alt_text or 'Image'
-        })
+        if url not in seen_urls:
+            images.append({
+                'url': url,
+                'alt': alt_text or 'Image'
+            })
+            seen_urls.add(url)
     
-    # Also extract plain URLs that might not be in markdown
-    plain_urls = extract_image_urls_from_text(response_text)
+    # Also extract plain URLs that might not be in markdown (but exclude markdown syntax)
+    # Remove markdown images first to avoid re-matching
+    text_without_markdown = re.sub(r'!\[[^\]]*\]\([^)]+\)', '', response_text)
+    plain_urls = extract_image_urls_from_text(text_without_markdown)
+    
     for url in plain_urls:
         if convert_urls:
             url = convert_minio_url_for_frontend(url)
         # Avoid duplicates
-        if not any(img['url'] == url for img in images):
+        if url not in seen_urls:
             images.append({
                 'url': url,
                 'alt': 'Image'
             })
+            seen_urls.add(url)
     
     return {
         'text': response_text,

@@ -30,7 +30,7 @@ members = ["Assistant", "SQL", "Recommender"]
 
 # Define agent capabilities for better routing
 AGENT_DESCRIPTIONS = {
-    "SQL": "Expert in querying the database for users, posts, places, follows, media, and timeline data. Handles questions about 'who', 'what', 'where', 'when' related to app data. Can retrieve image URLs from MinIO storage.",
+    "SQL": "Expert in querying the database for users, posts, places, follows, media, and timelines data. Handles questions about 'who', 'what', 'where', 'when' related to app data. Can retrieve image URLs from MinIO storage.",
     "Recommender": "Provides personalized recommendations for places to visit, users to follow, and content based on user preferences and behavior.",
     "Assistant": "General assistant for greetings, explanations, and non-database queries. Handles web search and calculations."
 }
@@ -143,7 +143,7 @@ class GraphService:
         verbose=True,
         prefix="""You are a helpful, friendly assistant with access to a database. Talk like a real person having a conversation!
 
-Available tables: users, posts, places, follows, media, timeline
+Available tables: users, posts, places, follows, media, timelines
 
 **Schema Information**:
 - posts table: id, user_id, media_id, caption, timestamp
@@ -151,7 +151,7 @@ Available tables: users, posts, places, follows, media, timeline
 - users table: id, username, email, bio, avatar_url
 - places table: id, name, description, latitude, longitude, address, category
 - follows table: id, follower_id, following_id, timestamp
-- timeline table: id, user_id, post_id, timestamp
+- timelines table: id, user_id, post_id, timestamp
 
 **Your Mission**:
 1. Query the database to find what the user needs
@@ -188,7 +188,7 @@ Remember: Be conversational, friendly, and helpful - not robotic!"""
       """Classify this user query into ONE category:
       
       Categories:
-      - SQL: Questions about users, posts, places, follows, media, timeline, or any app data
+      - SQL: Questions about users, posts, places, follows, media, timelines, or any app data
       - RECOMMENDER: Requests for recommendations or suggestions
       - ASSISTANT: Greetings, general questions, calculations, web searches
       
@@ -236,21 +236,23 @@ Remember: Be conversational, friendly, and helpful - not robotic!"""
         - Don't use corporate speak or jargon
         - Don't list information in a dry, mechanical way
         
-        **Image Handling**:
-        - ALWAYS preserve markdown image syntax ![...](...) EXACTLY as provided
-        - Never modify, remove, or describe image URLs
-        - Include them naturally in your response
+        **CRITICAL - Image Handling**:
+        - If the Information Found already contains markdown images ![alt](url), use them EXACTLY as-is
+        - DO NOT wrap existing markdown images with additional ![...](...) syntax
+        - DO NOT modify URLs or alt text in existing images
+        - Simply incorporate the existing markdown naturally into your friendly response
+        - If there are NO images in the information, you can mention URLs as plain text if relevant
         
         **Examples**:
-        ✅ Good: "Hey! I found some awesome posts for you:\n![Image 1](http://...)\n![Image 2](http://...)\nPretty cool, right?"
-        ✅ Good: "Sure thing! Here are the users you're looking for: Alice, Bob, and Charlie. They've all been pretty active lately!"
-        ❌ Bad: "The SQL agent queried the database and retrieved the following results..."
-        ❌ Bad: "Here is the information you requested from the database:"
+        ✅ Good: "Hey! I found these awesome posts:\n\n![Beach sunset](http://...)\n![Mountain view](http://...)\n\nPretty cool, right?"
+        ✅ Good: "Sure thing! Here are the users: Alice, Bob, and Charlie. They've all been pretty active!"
+        ❌ Bad: "Hey! Check this out: ![Post](![Image](http://...))" (double wrapping!)
+        ❌ Bad: "The SQL agent queried the database and retrieved..."
 
         **User Request**: {userRequest}
         **Information Found**: {finalState}
         
-        Respond in a friendly, conversational way (keep all image markdown intact):
+        Respond in a friendly, conversational way (preserve any existing markdown images exactly):
     ''')
 
     summerizer_agent =  create_structured_output_runnable(
@@ -291,7 +293,7 @@ Remember: Be conversational, friendly, and helpful - not robotic!"""
         MessagesPlaceholder(variable_name="messages"),
         ("system", 
          "Given the conversation above, who should act next?\n"
-         "- If the question is about app data (users, posts, places, follows, media, timeline), select SQL\n"
+         "- If the question is about app data (users, posts, places, follows, media, timelines), select SQL\n"
          "- If it's about recommendations, select Recommender\n"
          "- If it's general or already answered well, select FINISH\n"
          "- Otherwise select Assistant\n\n"
@@ -364,7 +366,7 @@ Remember: Be conversational, friendly, and helpful - not robotic!"""
         if needs_images:
           image_instruction = " When querying posts or users, make sure to JOIN with the media table and include external_resource_url field to get image URLs."
         
-        enhanced_query = f"Answer this in a friendly, conversational way: {query}\n\nContext: You're helping user {user_id}. Query the database (users, posts, places, follows, media, timeline) to find what they're looking for. Be natural and casual in your response, like you're chatting with a friend.{image_instruction} Don't mention technical details like SQL queries or database operations - just give them the info they need in a warm, helpful way."
+        enhanced_query = f"Answer this in a friendly, conversational way: {query}\n\nContext: You're helping user {user_id}. Query the database (users, posts, places, follows, media, timelines) to find what they're looking for. Be natural and casual in your response, like you're chatting with a friend.{image_instruction} Don't mention technical details like SQL queries or database operations - just give them the info they need in a warm, helpful way."
         
         result = agent.invoke(enhanced_query)
         output = result["output"]
