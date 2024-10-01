@@ -249,6 +249,41 @@
   word-wrap: break-word;
 }
 
+.retry-button {
+  margin-top: 12px;
+  padding: 8px 16px;
+  background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
+  border: none;
+  border-radius: 5px;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(74, 144, 226, 0.3);
+  align-self: flex-start;
+  font-size: 13px;
+}
+
+.retry-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(74, 144, 226, 0.5);
+  background: linear-gradient(135deg, #357abd 0%, #2868a8 100%);
+}
+
+.retry-button:active {
+  transform: translateY(0);
+}
+
+.retry-button.error {
+  background: linear-gradient(135deg, #ff6b6b 0%, #ff5252 100%);
+  box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+}
+
+.retry-button.error:hover {
+  box-shadow: 0 6px 20px rgba(255, 107, 107, 0.5);
+  background: linear-gradient(135deg, #ff5252 0%, #ff4444 100%);
+}
+
 .response-time {
   font-size: 11px;
   color: #888;

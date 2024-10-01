@@ -31,7 +31,8 @@ const App = () => {
 
   const sendMessage = async (question) => {
     setIsSending(true); // Start sending and show loader
-    addMessage({ author: "user", content: question });
+    const userMessage = { author: "user", content: question };
+    addMessage(userMessage);
 
     // Convert messages to chat history format (last 10 messages for context)
     const chatHistory = messages.slice(-10).map((msg) => ({
@@ -66,6 +67,7 @@ const App = () => {
         images: data.images || [],
         hasImages: data.has_images || false,
         responseTime: data.response_time_ms || null,
+        retryQuestion: question,
       });
     } catch (error) {
       console.error("There was an error!", error);
@@ -81,6 +83,8 @@ const App = () => {
         content: errorMessage,
         images: [],
         hasImages: false,
+        isError: true,
+        retryQuestion: question,
       });
     }
 
@@ -91,7 +95,11 @@ const App = () => {
     <div className="app-container">
       <div className="app-wrapper">
         <Header />
-        <ChatArea messages={messages} isSending={isSending} />
+        <ChatArea
+          messages={messages}
+          isSending={isSending}
+          onRetry={sendMessage}
+        />
         <InputArea
           onSendMessage={sendMessage}
           isSending={isSending}
@@ -140,7 +148,7 @@ const Header = () => {
   );
 };
 
-const ChatArea = ({ messages, isSending }) => {
+const ChatArea = ({ messages, isSending, onRetry }) => {
   // Helper function to render markdown-style text
   const renderContent = (content) => {
     if (!content) return "";
@@ -211,6 +219,16 @@ const ChatArea = ({ messages, isSending }) => {
             ) : (
               <>
                 {renderContent(message.content)}
+                {message.retryQuestion && (
+                  <button
+                    className={
+                      message.isError ? "retry-button error" : "retry-button"
+                    }
+                    onClick={() => onRetry(message.retryQuestion)}
+                  >
+                    🔄
+                  </button>
+                )}
                 {message.responseTime && (
                   <div className="response-time">
                     ⏱️ {message.responseTime}ms

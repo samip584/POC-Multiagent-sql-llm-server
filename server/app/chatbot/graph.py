@@ -293,10 +293,11 @@ Remember: Be conversational, friendly, and helpful - not robotic!"""
         MessagesPlaceholder(variable_name="messages"),
         ("system", 
          "Given the conversation above, who should act next?\n"
-         "- If the question is about app data (users, posts, places, follows, media, timelines), select SQL\n"
-         "- If it's about recommendations, select Recommender\n"
-         "- If it's general or already answered well, select FINISH\n"
-         "- Otherwise select Assistant\n\n"
+         "- If NO agent has responded yet and the question is about app data, select SQL\n"
+         "- If NO agent has responded yet and it's about recommendations, select Recommender\n"
+         "- If NO agent has responded yet and it's general, select Assistant\n"
+         "- If an agent (SQL/Recommender/Assistant) has already provided an answer, select FINISH\n\n"
+         "IMPORTANT: Once any worker provides a response, you MUST select FINISH.\n\n"
          "Select one of: {options}"),
     ]).partial(
         options=str(options), 
@@ -446,9 +447,17 @@ Remember: Be conversational, friendly, and helpful - not robotic!"""
     # Safety check: prevent infinite loops
     def should_continue(state):
       iteration = state.get('iteration_count', 0)
+      next_agent = state.get('next', 'FINISH')
+      
+      # Safety: max iterations exceeded
       if iteration >= self.max_iterations:
         return END
-      return state.get('next', 'FINISH')
+      
+      # Check if supervisor said FINISH
+      if next_agent == 'FINISH':
+        return END
+        
+      return next_agent
     
     for member in members:
       # Workers report back to supervisor
@@ -463,7 +472,7 @@ Remember: Be conversational, friendly, and helpful - not robotic!"""
     # Start with classifier for fast routing
     workflow.set_entry_point("classifier")
 
-    return workflow.compile()
+    return workflow.compile(debug=False)
 
   async def invoke(self, input_data, user_id: int, chat_history: List[Dict[str, str]] = None):
     """Invoke the graph workflow and return final response.
@@ -502,7 +511,7 @@ Remember: Be conversational, friendly, and helpful - not robotic!"""
     graphSteps = []
     
     try:
-      async for s in self.workflow.astream(initial_state):
+      async for s in self.workflow.astream(initial_state, {"recursion_limit": 10}):
         if "__end__" not in s:
           graphSteps.append(s)
           
@@ -516,4 +525,9 @@ Remember: Be conversational, friendly, and helpful - not robotic!"""
     except Exception as e:
       error_msg = f"Graph execution error: {str(e)}"
       print(error_msg)
-      return f"I encountered an error processing your request: {str(e)}"
+      
+      # If we have partial results, try to summarize them
+      if graphSteps and "recursion" not in str(e).lower():
+        return self.summarize(input_data, graphSteps).response
+      
+      return f"I'm having trouble processing that request. Could you try rephrasing it or asking something simpler?"
