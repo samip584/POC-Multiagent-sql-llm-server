@@ -8,6 +8,8 @@
 
 A full-stack intelligent chatbot application powered by LangGraph multi-agent orchestration, OpenAI GPT-4o, and React. The system features automatic query routing, conversational AI with image support, and real-time chat interface.
 
+![Chat Interface Example](static/image.png)
+
 ## 🎯 Overview
 
 This project demonstrates a production-ready multi-agent LLM system that intelligently routes user queries to specialized agents (SQL, Recommender, Assistant) for optimal responses. Built with modern web technologies and designed for scalability.
